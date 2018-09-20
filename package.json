@@ -81,6 +81,7 @@
   },
   "dependencies": {
     "@material-ui/core": "^3.1.0",
+    "@sensenet/control-mapper": "^1.0.1",
     "@sensenet/controls-react": "^2.2.2",
     "@sensenet/default-content-types": "^1.1.0",
     "@sensenet/query": "^1.0.1",
