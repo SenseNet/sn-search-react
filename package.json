@@ -84,7 +84,7 @@
     "@sensenet/control-mapper": "^1.0.1",
     "@sensenet/controls-react": "^2.2.2",
     "@sensenet/default-content-types": "^1.1.0",
-    "@sensenet/query": "^1.0.1",
+    "@sensenet/query": "^1.1.0",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "uuid": "^3.3.2"

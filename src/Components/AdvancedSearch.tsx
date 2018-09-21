@@ -1,6 +1,6 @@
 import { SchemaStore } from '@sensenet/client-core/dist/Schemas/SchemaStore'
 import { GenericContent } from '@sensenet/default-content-types'
-import { Query, QueryExpression, QueryOperators } from '@sensenet/query'
+import { Query, QueryOperators } from '@sensenet/query'
 import * as React from 'react'
 
 export interface SearchFieldProps<T> {
@@ -38,17 +38,22 @@ export class AdvancedSearch<T extends GenericContent = GenericContent> extends R
     }
 
     private updateQuery(field: keyof T, newQuery: Query<T>) {
+
         this.state.fieldQueries.set(field, newQuery)
         const fieldQueryArray = Array.from(this.state.fieldQueries.values())
-        const query = new Query((q) => undefined as any)
-        fieldQueryArray.map((fieldQuery, currentIndex) => {
-            query.addSegment(new QueryExpression(query).term(fieldQuery.toString()))
-            if (currentIndex < fieldQueryArray.length - 1) {
-                query.addSegment(new QueryOperators(query).and)
-            }
-            return fieldQuery
-        })
+        const query = new Query((q) => {
+            fieldQueryArray.map((fieldQuery, currentIndex) => {
+                q.query(fieldQuery)
+                if (currentIndex < fieldQueryArray.length - 1) {
+                    // tslint:disable:no-unused-expression
+                    // tslint:disable-next-line:no-string-literal
+                    new QueryOperators(q['queryRef']).and
+                    // tslint:enable:no-unused-expression
+                }
 
+            })
+            return q
+        })
         this.setState({
             ...this.state,
             query,
@@ -66,12 +71,12 @@ export class AdvancedSearch<T extends GenericContent = GenericContent> extends R
     public render() {
         return <div>
             {this.props.fields.map((f) => React.createElement(f.control, {
-                    key: f.fieldName,
-                    fieldName: f.fieldName,
-                    query: this.state.query,
-                    // tslint:disable-next-line:no-console
-                    onValueChange: (q) => this.updateQuery(f.fieldName, q),
-                } as SearchFieldProps<T> as any),
+                key: f.fieldName,
+                fieldName: f.fieldName,
+                query: this.state.query,
+                // tslint:disable-next-line:no-console
+                onValueChange: (q) => this.updateQuery(f.fieldName, q),
+            } as SearchFieldProps<T> as any),
             )}
         </div>
     }
