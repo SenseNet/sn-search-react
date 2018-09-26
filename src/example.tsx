@@ -9,22 +9,28 @@ const repo = new Repository()
 
 ReactDOM.render(
         <AdvancedSearch
-            onSearch={(q) => {
+            onQueryChanged={(q) => {
                 // tslint:disable-next-line:no-console
                 console.log(q.toString())
             }}
-            searchRoots={[]}
-            schemas={repo.schemas}
-            fields={[
-                {
-                    fieldName: 'DisplayName',
-                    control: TextField,
-                },
-                {
-                    fieldName: 'Name',
-                    control: TextField,
-                },
-            ]}
+            schema={repo.schemas.getSchemaByName('GenericContent')}
+            fields={(_options) => (
+                <div>
+                    <TextField
+                        fieldName="DisplayName"
+                        onQueryChange={_options.updateQuery}
+                        fieldSetting={_options.getFieldSetting('DisplayName')}
+                    />
+                    <TextField
+                        fieldName="DisplayName"
+                        onQueryChange={_options.updateQuery}
+                        fieldKey="alma"
+                        fieldSetting={{
+                            FieldClassName: 'DisplayName',
+                        }}
+                    />
+                </div>)
+            }
                 /> ,
     document.getElementById('example'),
 )
