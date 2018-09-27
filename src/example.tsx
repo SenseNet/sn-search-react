@@ -65,7 +65,7 @@ class ExampleComponent extends React.Component<{}, ExampleComponentState> {
         nameFieldQuery: '',
         displayNameFieldQuery: '',
         fullQuery: '',
-        isSettingsOpen: false,
+        isSettingsOpen: localStorage.getItem(localStorageKey) === null, // false,
         isHelpOpen: false,
     }
 
@@ -254,10 +254,8 @@ class ExampleComponent extends React.Component<{}, ExampleComponentState> {
                         This example application is a showcase for the <a href="http://npmjs.com/package/@sensenet/search-react" target="_blank">@sensenet/search-react</a> package
                         and demonstrates the basic functionality with some predefined field filters and an example query result.<br />
                         In order to get the result, please set up your repository in the <strong>Settings</strong> section and check that
-                        <ul>
                             <li>Your <a href="https://community.sensenet.com/docs/cors/" target="_blank">CORS</a> settings are correct</li>
-                            <li>You have logged in and have appropriate rights for the content</li>
-                        </ul>
+                        <li>You have logged in / have appropriate rights for the content</li>
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
