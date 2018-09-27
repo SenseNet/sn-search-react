@@ -13,6 +13,7 @@ export interface AdvancedSearchProps<T extends GenericContent> {
     fields: (options: AdvancedSearchOptions<T>) => React.ReactElement<any>
     onQueryChanged?: (q: Query<T>) => void
     onSubmit?: (ev: React.FormEvent, query: Query<T>) => void
+    style?: React.CSSProperties
 }
 
 export interface AdvancedSearchState<T> {
@@ -38,16 +39,20 @@ export class AdvancedSearch<T extends GenericContent = GenericContent> extends R
         this.state.fieldQueries.set(key, newQuery)
         const fieldQueryArray = Array.from(this.state.fieldQueries.values())
         const query = new Query((q) => {
-            fieldQueryArray.map((fieldQuery, currentIndex) => {
-                // tslint:disable
-                const queryRef = q['queryRef']
-                new QueryExpression(queryRef).query(fieldQuery)
-                if (currentIndex < fieldQueryArray.length - 1) {
+            const filteredQueries = fieldQueryArray
+                .filter((f) => f.toString().length > 0)
 
-                    new QueryOperators(queryRef).and
-                }
-                // tslint:enable
-            })
+            filteredQueries
+                .map((fieldQuery, currentIndex) => {
+                    // tslint:disable
+                    const queryRef = q['queryRef']
+                    new QueryExpression(queryRef).query(fieldQuery)
+                    if (currentIndex < filteredQueries.length - 1) {
+
+                        new QueryOperators(queryRef).and
+                    }
+                    // tslint:enable
+                })
             return q
         })
         this.props.onQueryChanged && this.props.onQueryChanged(query)
@@ -70,7 +75,7 @@ export class AdvancedSearch<T extends GenericContent = GenericContent> extends R
     }
 
     public render() {
-        return <div>
+        return <div style={this.props.style}>
             {
                 this.props.fields({
                     updateQuery: this.updateQuery,
