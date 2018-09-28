@@ -52,6 +52,7 @@ const repo = new Repository({
 interface ExampleComponentState {
     nameFieldQuery: string
     displayNameFieldQuery: string
+    typeFieldQuery: string
     fullQuery: string
     isSettingsOpen: boolean
     isHelpOpen: boolean
@@ -77,6 +78,7 @@ class ExampleComponent extends React.Component<{}, ExampleComponentState> {
         nameFieldQuery: '',
         displayNameFieldQuery: '',
         fullQuery: '',
+        typeFieldQuery: '',
         isSettingsOpen: localStorage.getItem(localStorageKey) === null, // false,
         isHelpOpen: false,
     }
@@ -163,7 +165,7 @@ class ExampleComponent extends React.Component<{}, ExampleComponentState> {
                                 <TextField
                                     fieldName="DisplayName"
                                     onQueryChange={(key, query) => {
-                                        this.setState({ displayNameFieldQuery: query.toString() })
+                                        this.setState({ typeFieldQuery: query.toString() })
                                         _options.updateQuery(key, query)
                                     }}
                                     fieldSetting={_options.getFieldSetting('DisplayName')}
@@ -171,8 +173,12 @@ class ExampleComponent extends React.Component<{}, ExampleComponentState> {
                                 />
                                 <FormControl>
                                     <InputLabel htmlFor="type-filter">Filter by type</InputLabel>
-                                    <TypeField id="type-filter" types={contentTypes} />
-                                    <FormHelperText>Filter in all content types</FormHelperText>
+                                    <TypeField onQueryChange={(query) => {
+                                        this.setState({ typeFieldQuery: query.toString() })
+                                        _options.updateQuery('Type', query)
+                                    }}
+                                    id="type-filter" types={contentTypes} schemaStore={repo.schemas} />
+                                    <FormHelperText>{this.state.typeFieldQuery.length ? this.state.typeFieldQuery : 'Filter in all content types' }</FormHelperText>
                                 </FormControl>
 
                                 <button style={{ display: 'none' }} type="submit"></button>
