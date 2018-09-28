@@ -1,4 +1,4 @@
-import { Divider } from '@material-ui/core'
+import { Divider, FormControl, FormHelperText, InputLabel } from '@material-ui/core'
 import AppBar from '@material-ui/core/AppBar'
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
@@ -17,12 +17,13 @@ import MaterialTextField from '@material-ui/core/TextField'
 import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
 import { IODataCollectionResponse, Repository } from '@sensenet/client-core'
-import { GenericContent } from '@sensenet/default-content-types'
+import * as DefaultContentTypes from '@sensenet/default-content-types'
 import { MaterialIcon } from '@sensenet/icons-react'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { AdvancedSearch } from './Components/AdvancedSearch'
 import { TextField } from './Components/Fields/TextField'
+import { TypeField } from './Components/Fields/TypeField'
 
 const localStorageKey = 'sn-advanced-search-demo'
 
@@ -54,7 +55,18 @@ interface ExampleComponentState {
     fullQuery: string
     isSettingsOpen: boolean
     isHelpOpen: boolean
-    response?: IODataCollectionResponse<GenericContent>
+    response?: IODataCollectionResponse<DefaultContentTypes.GenericContent>
+}
+
+const contentTypes: Array<{new(...args: any[]): DefaultContentTypes.GenericContent}> = []
+
+for (const key in DefaultContentTypes) {
+    if ((DefaultContentTypes as object).hasOwnProperty(key)) {
+        const current = (DefaultContentTypes as any)[key as any] as DefaultContentTypes.GenericContent
+        if (DefaultContentTypes.GenericContent.isPrototypeOf(current)) {
+            contentTypes.push(current as any)
+        }
+    }
 }
 
 class ExampleComponent extends React.Component<{}, ExampleComponentState> {
@@ -71,7 +83,7 @@ class ExampleComponent extends React.Component<{}, ExampleComponentState> {
 
     private async sendRequest(ev: React.SyntheticEvent) {
         ev.preventDefault()
-        const response = await repo.loadCollection<GenericContent>({
+        const response = await repo.loadCollection<DefaultContentTypes.GenericContent>({
             path: demoData.idOrPath as string, // ToDo: query by Id in client-core
             oDataOptions: {
                 select: ['Id', 'Path', 'Name', 'DisplayName', 'Type'],
@@ -157,6 +169,12 @@ class ExampleComponent extends React.Component<{}, ExampleComponentState> {
                                     fieldSetting={_options.getFieldSetting('DisplayName')}
                                     helperText={this.state.displayNameFieldQuery ? `Field Query: ${this.state.displayNameFieldQuery}` : 'Query on the DisplayName'}
                                 />
+                                <FormControl>
+                                    <InputLabel htmlFor="type-filter">Filter by type</InputLabel>
+                                    <TypeField id="type-filter" types={contentTypes} />
+                                    <FormHelperText>Filter in all content types</FormHelperText>
+                                </FormControl>
+
                                 <button style={{ display: 'none' }} type="submit"></button>
                             </form>
                             <Divider />
