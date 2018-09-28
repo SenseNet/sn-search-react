@@ -11,12 +11,18 @@ import React = require('react')
 const ITEM_HEIGHT = 48
 const ITEM_PADDING_TOP = 8
 
+/**
+ * Props for the Type Field component
+ */
 export interface TypeFieldProps extends SelectProps {
     types: Array<{new(...args: any[]): GenericContent}>,
     schemaStore: SchemaStore
     onQueryChange: (query: Query<GenericContent>) => void
 }
 
+/**
+ * State for the Type Field component
+ */
 export interface TypeFieldState {
     selected: Array<{new(...args: any[]): GenericContent}>
     schemas: Schema[]
@@ -24,24 +30,31 @@ export interface TypeFieldState {
     query?: Query<any>
 }
 
+/**
+ * Component that represents a content type filter
+ */
 export class TypeField extends React.Component<TypeFieldProps, TypeFieldState> {
 
+    /**
+     * State object for the Type Field filter component
+     */
     public state: TypeFieldState = {
         name: '',
         selected: [],
         schemas: [],
     }
 
-    /**
-     *
-     */
     constructor(props: TypeFieldProps) {
         super(props)
         this.handleChange = this.handleChange.bind(this)
     }
 
+    /**
+     * Creates a derived State object form the props
+     * @param newProps The new Props object
+     * @param lastState The last State object
+     */
     public static getDerivedStateFromProps(newProps: TypeFieldProps, lastState: TypeFieldState) {
-
         return {
             ...lastState,
             schemas: newProps.types.map((contentType) => newProps.schemaStore.getSchemaByName(contentType.name)),
