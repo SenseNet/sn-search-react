@@ -4,7 +4,7 @@ import ListItemText from '@material-ui/core/ListItemText'
 import MenuItem from '@material-ui/core/MenuItem'
 import Select, {SelectProps} from '@material-ui/core/Select'
 import { SchemaStore } from '@sensenet/client-core/dist/Schemas/SchemaStore'
-import { GenericContent } from '@sensenet/default-content-types'
+import { GenericContent, Schema } from '@sensenet/default-content-types'
 import { Query, QueryExpression, QueryOperators } from '@sensenet/query'
 import React = require('react')
 
@@ -19,6 +19,7 @@ export interface TypeFieldProps extends SelectProps {
 
 export interface TypeFieldState {
     selected: Array<{new(...args: any[]): GenericContent}>
+    schemas: Schema[]
     name: string
     query?: Query<any>
 }
@@ -28,6 +29,7 @@ export class TypeField extends React.Component<TypeFieldProps, TypeFieldState> {
     public state: TypeFieldState = {
         name: '',
         selected: [],
+        schemas: [],
     }
 
     /**
@@ -36,6 +38,14 @@ export class TypeField extends React.Component<TypeFieldProps, TypeFieldState> {
     constructor(props: TypeFieldProps) {
         super(props)
         this.handleChange = this.handleChange.bind(this)
+    }
+
+    public static getDerivedStateFromProps(newProps: TypeFieldProps, lastState: TypeFieldState) {
+
+        return {
+            ...lastState,
+            schemas: newProps.types.map((contentType) => newProps.schemaStore.getSchemaByName(contentType.name)),
+        }
     }
 
     private handleChange(ev: React.ChangeEvent<HTMLSelectElement>) {
@@ -82,10 +92,10 @@ export class TypeField extends React.Component<TypeFieldProps, TypeFieldState> {
               }}
               {...selectProps}
           >
-            {this.props.types.map((contentType) => (
-              <MenuItem key={contentType.name} value={contentType.name} title={this.props.schemaStore.getSchemaByName(contentType.name).Description}>
-                <Checkbox checked={selectedNames.indexOf(contentType.name) > -1} />
-                <ListItemText primary={contentType.name} />
+            {this.state.schemas.map((contentSchema) => (
+              <MenuItem key={contentSchema.ContentTypeName} value={contentSchema.ContentTypeName} title={contentSchema.Description}>
+                <Checkbox checked={selectedNames.indexOf(contentSchema.ContentTypeName) > -1} />
+                <ListItemText primary={contentSchema.ContentTypeName} />
               </MenuItem>
             ))}
           </Select>)

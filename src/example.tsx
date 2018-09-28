@@ -177,7 +177,9 @@ class ExampleComponent extends React.Component<{}, ExampleComponentState> {
                                         this.setState({ typeFieldQuery: query.toString() })
                                         _options.updateQuery('Type', query)
                                     }}
-                                    id="type-filter" types={contentTypes} schemaStore={repo.schemas} />
+                                    id="type-filter"
+                                    types={/*contentTypes*/ [DefaultContentTypes.File,  DefaultContentTypes.Folder, DefaultContentTypes.User]}
+                                    schemaStore={repo.schemas} />
                                     <FormHelperText>{this.state.typeFieldQuery.length ? this.state.typeFieldQuery : 'Filter in all content types' }</FormHelperText>
                                 </FormControl>
 
