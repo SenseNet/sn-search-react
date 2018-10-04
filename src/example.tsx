@@ -22,6 +22,7 @@ import { MaterialIcon } from '@sensenet/icons-react'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { AdvancedSearch } from './Components/AdvancedSearch'
+import { DateField } from './Components/Fields/DateField'
 import { TextField } from './Components/Fields/TextField'
 import { TypeField } from './Components/Fields/TypeField'
 
@@ -59,7 +60,7 @@ interface ExampleComponentState {
     response?: IODataCollectionResponse<DefaultContentTypes.GenericContent>
 }
 
-const contentTypes: Array<{new(...args: any[]): DefaultContentTypes.GenericContent}> = []
+const contentTypes: Array<{ new(...args: any[]): DefaultContentTypes.GenericContent }> = []
 
 for (const key in DefaultContentTypes) {
     if ((DefaultContentTypes as object).hasOwnProperty(key)) {
@@ -171,16 +172,23 @@ class ExampleComponent extends React.Component<{}, ExampleComponentState> {
                                     fieldSetting={_options.getFieldSetting('DisplayName')}
                                     helperText={this.state.displayNameFieldQuery ? `Field Query: ${this.state.displayNameFieldQuery}` : 'Query on the DisplayName'}
                                 />
+                                <DateField
+                                    fieldName="CreationDate"
+                                    onQueryChange={(key, query) => {
+                                        // this.setState({ typeFieldQuery: query.toString() })
+                                        _options.updateQuery(key, query)
+                                    }}
+                                />
                                 <FormControl>
                                     <InputLabel htmlFor="type-filter">Filter by type</InputLabel>
                                     <TypeField onQueryChange={(query) => {
                                         this.setState({ typeFieldQuery: query.toString() })
                                         _options.updateQuery('Type', query)
                                     }}
-                                    id="type-filter"
-                                    types={/*contentTypes*/ [DefaultContentTypes.File,  DefaultContentTypes.Folder, DefaultContentTypes.User]}
-                                    schemaStore={repo.schemas} />
-                                    <FormHelperText>{this.state.typeFieldQuery.length ? this.state.typeFieldQuery : 'Filter in all content types' }</FormHelperText>
+                                        id="type-filter"
+                                        types={/*contentTypes*/[DefaultContentTypes.File, DefaultContentTypes.Folder, DefaultContentTypes.User]}
+                                        schemaStore={repo.schemas} />
+                                    <FormHelperText>{this.state.typeFieldQuery.length ? this.state.typeFieldQuery : 'Filter in all content types'}</FormHelperText>
                                 </FormControl>
 
                                 <button style={{ display: 'none' }} type="submit"></button>
