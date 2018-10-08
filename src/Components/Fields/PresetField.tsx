@@ -38,8 +38,14 @@ export interface SelectFieldProps<T> extends SelectProps {
  */
 export class PresetField<T extends GenericContent = GenericContent> extends React.Component<SelectFieldProps<T>, {value: string}> {
 
+    /**
+     * Preset field state object
+     */
     public state = {value: ''}
 
+    /**
+     * renders the component
+     */
     public render() {
         return <Select
         value={this.state.value}
