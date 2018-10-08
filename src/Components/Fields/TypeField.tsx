@@ -8,9 +8,6 @@ import { GenericContent, Schema } from '@sensenet/default-content-types'
 import { Query, QueryExpression, QueryOperators } from '@sensenet/query'
 import React = require('react')
 
-const ITEM_HEIGHT = 48
-const ITEM_PADDING_TOP = 8
-
 /**
  * Props for the Type Field component
  */
@@ -95,15 +92,7 @@ export class TypeField extends React.Component<TypeFieldProps, TypeFieldState> {
             onChange={this.handleChange}
             input={<Input id="select-multiple-checkbox" />}
             renderValue={() => selectedNames.join(', ')}
-            MenuProps={{
-                PaperProps: {
-                  style: {
-                    maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-                    width: 250,
-                  },
-                },
-              }}
-              {...selectProps}
+            {...selectProps}
           >
             {this.state.schemas.map((contentSchema) => (
               <MenuItem key={contentSchema.ContentTypeName} value={contentSchema.ContentTypeName} title={contentSchema.Description}>
