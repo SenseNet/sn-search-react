@@ -1,4 +1,4 @@
-import { Divider, FormControl, FormHelperText, InputLabel } from '@material-ui/core'
+import { Checkbox, Divider, FormControl, FormHelperText, InputLabel, ListItemText, MenuItem } from '@material-ui/core'
 import AppBar from '@material-ui/core/AppBar'
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
@@ -18,12 +18,13 @@ import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
 import { IODataCollectionResponse, Repository } from '@sensenet/client-core'
 import * as DefaultContentTypes from '@sensenet/default-content-types'
-import { MaterialIcon } from '@sensenet/icons-react'
+import { Icon, iconType, MaterialIcon } from '@sensenet/icons-react'
 import { Query } from '@sensenet/query'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { AdvancedSearch } from './Components/AdvancedSearch'
 import { PresetField } from './Components/Fields/PresetField'
+import { ReferenceField } from './Components/Fields/ReferenceField'
 import { TextField } from './Components/Fields/TextField'
 import { TypeField } from './Components/Fields/TypeField'
 
@@ -56,6 +57,7 @@ interface ExampleComponentState {
     displayNameFieldQuery: string
     typeFieldQuery: string
     creationDateQuery: string
+    referenceFieldQuery: string
     fullQuery: string
     isSettingsOpen: boolean
     isHelpOpen: boolean
@@ -73,6 +75,12 @@ for (const key in DefaultContentTypes) {
     }
 }
 
+const icons: any = {
+    folder: 'folder',
+    file: 'insert_drive_file',
+    user: 'person',
+}
+
 class ExampleComponent extends React.Component<{}, ExampleComponentState> {
     /**
      * State object for the Example component
@@ -83,6 +91,7 @@ class ExampleComponent extends React.Component<{}, ExampleComponentState> {
         fullQuery: '',
         typeFieldQuery: '',
         creationDateQuery: '',
+        referenceFieldQuery: '',
         isSettingsOpen: localStorage.getItem(localStorageKey) === null, // false,
         isHelpOpen: false,
     }
@@ -92,7 +101,7 @@ class ExampleComponent extends React.Component<{}, ExampleComponentState> {
         const response = await repo.loadCollection<DefaultContentTypes.GenericContent>({
             path: demoData.idOrPath as string, // ToDo: query by Id in client-core
             oDataOptions: {
-                select: ['Id', 'Path', 'Name', 'DisplayName', 'Type'],
+                select: 'all',
                 metadata: 'no',
                 inlinecount: 'allpages',
                 query: this.state.fullQuery,
@@ -178,21 +187,21 @@ class ExampleComponent extends React.Component<{}, ExampleComponentState> {
                                 <FormControl>
                                     <InputLabel htmlFor="type-filter">Created at</InputLabel>
                                     <PresetField
-                                    fieldName="CreationDate"
-                                    presets={[
-                                        {text: '-', value: new Query((a) => a)},
-                                        {text: 'Today', value: new Query((a) => a.term('CreationDate:>@@Today@@'))},
-                                        {text: 'Yesterday', value: new Query((a) => a.term('CreationDate:>@@Yesterday@@').and.term('CreationDate:<@@Today@@'))},
-                                    ]}
-                                    onQueryChange={(key, query) => {
-                                        this.setState({ creationDateQuery: query.toString() })
-                                        _options.updateQuery(key, query)
-                                    }}
-                                />
+                                        fieldName="CreationDate"
+                                        presets={[
+                                            { text: '-', value: new Query((a) => a) },
+                                            { text: 'Today', value: new Query((a) => a.term('CreationDate:>@@Today@@')) },
+                                            { text: 'Yesterday', value: new Query((a) => a.term('CreationDate:>@@Yesterday@@').and.term('CreationDate:<@@Today@@')) },
+                                        ]}
+                                        onQueryChange={(key, query) => {
+                                            this.setState({ creationDateQuery: query.toString() })
+                                            _options.updateQuery(key, query)
+                                        }}
+                                    />
                                     <FormHelperText>{this.state.creationDateQuery.length ? this.state.creationDateQuery : 'Filter by creation date'}</FormHelperText>
                                 </FormControl>
 
-                                <FormControl>
+                                <FormControl style={{ minWidth: 150 }}>
                                     <InputLabel htmlFor="type-filter">Filter by type</InputLabel>
                                     <TypeField onQueryChange={(query) => {
                                         this.setState({ typeFieldQuery: query.toString() })
@@ -200,9 +209,45 @@ class ExampleComponent extends React.Component<{}, ExampleComponentState> {
                                     }}
                                         id="type-filter"
                                         types={/*contentTypes*/[DefaultContentTypes.File, DefaultContentTypes.Folder, DefaultContentTypes.User]}
-                                        schemaStore={repo.schemas} />
+                                        schemaStore={repo.schemas}
+                                        getMenuItem={(schema, isSelected) => <MenuItem key={schema.ContentTypeName} value={schema.ContentTypeName} title={schema.Description}>
+                                            {isSelected ?
+                                                <Checkbox checked style={{ padding: 0 }} />
+                                                : <Icon type={iconType.materialui} iconName={icons[schema.Icon.toLocaleLowerCase()]} />}
+                                            <ListItemText primary={schema.ContentTypeName} />
+                                        </MenuItem>
+
+                                        }
+                                    />
                                     <FormHelperText>{this.state.typeFieldQuery.length ? this.state.typeFieldQuery : 'Filter in all content types'}</FormHelperText>
                                 </FormControl>
+
+                                <ReferenceField
+                                    fieldName="CreatedBy"
+                                    fieldSetting={{
+                                        ..._options.getFieldSetting('CreatedBy'),
+                                        AllowedTypes: ['User'],
+                                    }}
+                                    fetchItems={async (q) => {
+                                        const response = await repo.loadCollection<DefaultContentTypes.GenericContent>({
+                                            path: demoData.idOrPath as string, // ToDo: query by Id in client-core
+                                            oDataOptions: {
+                                                select: ['Id', 'Path', 'Name', 'DisplayName', 'Type'],
+                                                metadata: 'no',
+                                                inlinecount: 'allpages',
+                                                query: q.toString(),
+                                                top: 10,
+                                            },
+                                        })
+                                        return response.d.results
+                                    }}
+                                    onQueryChange={(key, query) => {
+                                        this.setState({ referenceFieldQuery: query.toString() })
+                                        _options.updateQuery(key, query)
+                                    }}
+                                    helperText={this.state.referenceFieldQuery || 'Search a content creator'}
+                                    id="reference-filter"
+                                />
 
                                 <button style={{ display: 'none' }} type="submit"></button>
                             </form>
