@@ -16,7 +16,7 @@ export interface SelectFieldProps<T> extends SelectProps {
     /**
      *  The preset values shown in the select list
      */
-    presets: Array<{text: string, value: Query<T>}>
+    presets: Array<{ text: string, value: Query<T> }>
 
     /**
      * Callback that will triggered when the query changes
@@ -36,33 +36,36 @@ export interface SelectFieldProps<T> extends SelectProps {
  * Component for searching simple text fragments in a specified field
  * @param props
  */
-export class PresetField<T extends GenericContent = GenericContent> extends React.Component<SelectFieldProps<T>, {value: string}> {
+export class PresetField<T extends GenericContent = GenericContent> extends React.Component<SelectFieldProps<T>, { value: string }> {
 
     /**
      * Preset field state object
      */
-    public state = {value: ''}
+    public state = { value: '' }
 
     /**
      * renders the component
      */
     public render() {
+        const { fieldName, fieldKey, fieldSetting, onQueryChange, presets, ...materialProps } = this.props
         return <Select
-        value={this.state.value}
-        onChange={(ev) => {
-            const preset = this.props.presets.find((p) => p.text === ev.target.value.toString())
-            if (preset) {
-                this.props.onQueryChange(this.props.fieldKey || this.props.fieldName, preset.value)
-                this.setState({value: ev.target.value})
-            }
-        }}>
+            value={this.state.value}
+            onChange={(ev) => {
+                const preset = this.props.presets.find((p) => p.text === ev.target.value.toString())
+                if (preset) {
+                    this.props.onQueryChange(this.props.fieldKey || this.props.fieldName, preset.value)
+                    this.setState({ value: ev.target.value })
+                }
+            }}
+            {...materialProps}
+        >
             {this.props.presets.map((p) => {
                 return <MenuItem value={p.text} key={p.text}>
                     <ListItemText >{p.text}</ListItemText>
                 </MenuItem>
 
             })}
-    </Select>
+        </Select>
     }
 
 }
