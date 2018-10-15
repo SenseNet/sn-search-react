@@ -1,3 +1,4 @@
+import { MenuProps } from '@material-ui/core/Menu'
 import TextField, { TextFieldProps } from '@material-ui/core/TextField'
 import { GenericContent, ReferenceFieldSetting } from '@sensenet/default-content-types'
 import { Query, QueryExpression, QueryOperators } from '@sensenet/query'
@@ -10,13 +11,14 @@ import debounce = require('lodash.debounce')
 /**
  * Props for the ReferenceField component
  */
-export interface ReferenceFieldProps<T extends GenericContent> extends TextFieldProps {
+export interface ReferenceFieldProps<T> extends TextFieldProps {
     fieldName: keyof T
     fieldKey?: string
     fieldSetting: ReferenceFieldSetting
     fetchItems: (fetchQuery: Query<T>) => Promise<T[]>
     onQueryChange: (key: string, query: Query<GenericContent>) => void
     getMenuItem?: (item: T, select: (item: T) => void) => JSX.Element
+    MenuProps?: Partial<MenuProps>
 }
 
 /**
@@ -49,7 +51,11 @@ export class ReferenceField<T extends GenericContent = GenericContent> extends R
         selected: null,
         anchorEl: null as any,
         getMenuItem: (item: T, select: (item: T) => void) => <MenuItem key={item.Id} value={item.Id} onClick={() => select(item)}>{item.DisplayName}</MenuItem>,
+    }
 
+    private willUnmount: boolean = false
+    public componentWillUnmount() {
+        this.willUnmount = true
     }
 
     constructor(props: ReferenceFieldProps<T>) {
@@ -100,17 +106,23 @@ export class ReferenceField<T extends GenericContent = GenericContent> extends R
         })
         try {
             const values = await this.props.fetchItems(query)
+            if (this.willUnmount) {
+                return
+            }
             this.setState({
                 items: values,
                 isOpened: values.length > 0 ? true : false,
             })
+
+        } catch (_e) {
+            /** */
         } finally {
-            this.setState({ isLoading: false })
+            !this.willUnmount && this.setState({ isLoading: false })
         }
     }
 
     private handleClickAway() {
-        this.setState({isOpened: false})
+        this.setState({ isOpened: false })
     }
 
     private handleSelect(item: T) {
@@ -130,50 +142,45 @@ export class ReferenceField<T extends GenericContent = GenericContent> extends R
         const description = this.props.fieldSetting && this.props.fieldSetting.Description || ''
         const { fetchItems, fieldName, onQueryChange, fieldSetting, fieldKey, ...materialProps } = { ...this.props }
 
-        return <div ref={(ref) => ref && this.state.anchorEl !== ref &&  this.setState({anchorEl: ref})}>
-        <TextField
-            value={this.state.inputValue}
-            type="text"
-            onChange={(ev) => {
-                this.setState({inputValue: ev.target.value})
-                ev.persist()
-                this.handleInputChange(ev)
-            }}
-            // onChange={(ev) => {
-            //     const query = new Query((q) =>
-            //         ev.currentTarget.value ? q.equals(this.props.fieldName, `*${ev.currentTarget.value}*`) : q,
-            //     )
-            //     return this.props.onQueryChange(this.props.fieldKey || this.props.fieldName.toString(), query)
-            // }}
-            autoFocus
-            label={displayName}
-            placeholder={description}
-            title={this.props.fieldSetting && this.props.fieldSetting.Description}
-            InputProps={{
-                endAdornment:
-                    this.state.isLoading ? <InputAdornment position="end" >
-                        <CircularProgress size={16} />
-                    </InputAdornment> : null,
-            }}
-            {...materialProps}
-        >
-        </TextField >
-        <Menu
-            BackdropProps={{
-                onClick: this.handleClickAway,
-                style: {background: 'none'},
-            }}
-            open={this.state.isOpened}
-            anchorEl={this.state.anchorEl}
-            PaperProps={{
-                style: {
-                    marginTop: '45px',
-                    minWidth: '250px',
-                },
-            }}
-        >
-            {this.state.items.map((i) => this.state.getMenuItem(i, this.handleSelect))}
-        </Menu>
-        </div>
+        return <div ref={(ref) => ref && this.state.anchorEl !== ref && this.setState({ anchorEl: ref })}>
+            <TextField
+                value={this.state.inputValue}
+                type="text"
+                onChange={async (ev) => {
+                    this.setState({ inputValue: ev.target.value })
+                    ev.persist()
+                    await this.handleInputChange(ev)
+                }}
+                autoFocus
+                label={displayName}
+                placeholder={description}
+                title={this.props.fieldSetting && this.props.fieldSetting.Description}
+                InputProps={{
+                    endAdornment:
+                        this.state.isLoading ? <InputAdornment position="end" >
+                            <CircularProgress size={16} />
+                        </InputAdornment> : null,
+                }}
+                {...materialProps}
+            >
+            </TextField >
+            <Menu
+                BackdropProps={{
+                    onClick: this.handleClickAway,
+                    style: { background: 'none' },
+                }}
+                open={this.state.isOpened}
+                anchorEl={this.state.anchorEl}
+                PaperProps={{
+                    style: {
+                        marginTop: '45px',
+                        minWidth: '250px',
+                    },
+                }}
+                {...this.props.MenuProps}
+            >
+                {this.state.items.length > 0 ? this.state.items.map((i) => this.state.getMenuItem(i, this.handleSelect)) : <MenuItem>No hits</MenuItem>}
+            </Menu>
+        </div >
     }
 }

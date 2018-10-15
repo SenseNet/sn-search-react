@@ -1,4 +1,3 @@
-export * from './example'
 export * from './Components/AdvancedSearch'
 export * from './Components/Fields/PresetField'
 export * from './Components/Fields/ReferenceField'

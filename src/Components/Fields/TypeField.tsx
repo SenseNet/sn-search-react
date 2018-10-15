@@ -73,7 +73,7 @@ export class TypeField extends React.Component<TypeFieldProps, TypeFieldState> {
                 .map((contentType, currentIndex) => {
                     // tslint:disable
                     const queryRef = q['queryRef']
-                    new QueryExpression(queryRef).type(contentType)
+                    new QueryExpression(queryRef).typeIs(contentType)
                     if (currentIndex < selected.length - 1) {
                         new QueryOperators(queryRef).or
                     }

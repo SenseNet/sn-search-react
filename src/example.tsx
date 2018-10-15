@@ -18,6 +18,7 @@ import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
 import { IODataCollectionResponse, Repository } from '@sensenet/client-core'
 import * as DefaultContentTypes from '@sensenet/default-content-types'
+import { ReferenceFieldSetting } from '@sensenet/default-content-types'
 import { Icon, iconType, MaterialIcon } from '@sensenet/icons-react'
 import { Query } from '@sensenet/query'
 import * as React from 'react'
@@ -171,7 +172,7 @@ class ExampleComponent extends React.Component<{}, ExampleComponentState> {
                                         _options.updateQuery(key, query)
                                     }}
                                     fieldKey="alma"
-                                    fieldSetting={_options.getFieldSetting('Name')}
+                                    fieldSetting={_options.schema.FieldSettings.find((s) => s.Name === 'Name')}
                                     helperText={this.state.nameFieldQuery ? `Field Query: ${this.state.nameFieldQuery}` : 'A simple free text query on the Name field'}
                                 />
 
@@ -181,7 +182,7 @@ class ExampleComponent extends React.Component<{}, ExampleComponentState> {
                                         this.setState({ typeFieldQuery: query.toString() })
                                         _options.updateQuery(key, query)
                                     }}
-                                    fieldSetting={_options.getFieldSetting('DisplayName')}
+                                    fieldSetting={_options.schema.FieldSettings.find((s) => s.Name === 'DisplayName')}
                                     helperText={this.state.displayNameFieldQuery ? `Field Query: ${this.state.displayNameFieldQuery}` : 'Query on the DisplayName'}
                                 />
                                 <FormControl>
@@ -225,7 +226,7 @@ class ExampleComponent extends React.Component<{}, ExampleComponentState> {
                                 <ReferenceField
                                     fieldName="CreatedBy"
                                     fieldSetting={{
-                                        ..._options.getFieldSetting('CreatedBy'),
+                                        ..._options.schema.FieldSettings.find((s) => s.Name === 'CreatedBy') as ReferenceFieldSetting,
                                         AllowedTypes: ['User'],
                                     }}
                                     fetchItems={async (q) => {
