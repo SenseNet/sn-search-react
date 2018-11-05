@@ -1,6 +1,6 @@
 {
   "name": "@sensenet/search-react",
-  "version": "1.0.0-development.1",
+  "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
   "files": [
