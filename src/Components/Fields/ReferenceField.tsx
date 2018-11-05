@@ -1,5 +1,5 @@
 import { MenuProps } from '@material-ui/core/Menu'
-import TextField, { TextFieldProps } from '@material-ui/core/TextField'
+import TextField, { TextFieldProps as MaterialTextFieldProps } from '@material-ui/core/TextField'
 import { GenericContent, ReferenceFieldSetting } from '@sensenet/default-content-types'
 import { Query, QueryExpression, QueryOperators } from '@sensenet/query'
 import * as React from 'react'
@@ -11,7 +11,7 @@ import debounce = require('lodash.debounce')
 /**
  * Props for the ReferenceField component
  */
-export interface ReferenceFieldProps<T> extends TextFieldProps {
+export interface ReferenceFieldProps<T> {
     fieldName: keyof T
     fieldKey?: string
     fieldSetting: ReferenceFieldSetting
@@ -38,7 +38,7 @@ export interface ReferenceFieldState<T extends GenericContent> {
 /**
  * Reference field picker component
  */
-export class ReferenceField<T extends GenericContent = GenericContent> extends React.Component<ReferenceFieldProps<T>, ReferenceFieldState<T>> {
+export class ReferenceField<T extends GenericContent = GenericContent> extends React.Component<ReferenceFieldProps<T> & MaterialTextFieldProps, ReferenceFieldState<T>> {
 
     /**
      * Initial state
