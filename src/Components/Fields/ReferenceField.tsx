@@ -71,8 +71,9 @@ export class ReferenceField<T extends GenericContent = GenericContent> extends R
         /** */
         if (this.props.defaultValueIdOrPath) {
             const items = await this.props.fetchItems(new Query((q) => isNaN(this.props.defaultValueIdOrPath as number)
-                ? q.equals('Id', this.props.defaultValueIdOrPath)
-                : q.equals('Path', this.props.defaultValueIdOrPath)))
+                ? q.equals('Path', this.props.defaultValueIdOrPath)
+                : q.equals('Id', this.props.defaultValueIdOrPath),
+            ))
             if (items.length === 1 && items[0]) {
                 const item = items[0]
                 this.setState({
